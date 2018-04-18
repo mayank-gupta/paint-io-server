@@ -18,7 +18,7 @@ const onSocketConnect = io => socket => {
       if (typeof ack === 'function') {
         ack(true);
       }
-      socket.emit('UPDATE_USER_LIST',Object.keys(db.all));
+      socket.emit('UPDATE_USER_LIST',Object.keys(db.all()));
     } else {
       if (typeof ack === 'function') {
         ack(false);
@@ -36,7 +36,7 @@ const onSocketConnect = io => socket => {
         db.create(username, socket.id)();
       }
     }, this);
-    socket.emit('UPDATE_USER_LIST',Object.keys(db.all));
+    socket.emit('UPDATE_USER_LIST',Object.keys(db.all()));
   })
 
 };
