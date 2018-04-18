@@ -12,19 +12,32 @@ const onSocketConnect = io => socket => {
   // TODO 3.2 Include information about the "fromUser" so the client can filter draw events from other users and only display events from the selected user
 
   // TODO 1.4 listen for draw action-type events (eg "DRAW_POINTS") from the socket and broadcast them to others sockets.
-  // socket.on('LOGIN',(username)=> {
-  //   if(!db.get(username)){
-  //     db.create(username, socket.id);
-  //     socket.emit('acknowledgement',true);
-  //     socket.broadcast.emit('UPDATE_USER_LIST');
-  //   } else {
-  //     socket.emit('acknowledgement',false);
-  //   }
-  // });
+  socket.on('LOGIN',(username, ack)=> {
+    if(!db.get(username)){
+      db.create(username, socket.id);
+      if (typeof ack === 'function') {
+        ack(true);
+      }
+      socket.emit('UPDATE_USER_LIST',Object.keys(db.all));
+    } else {
+      if (typeof ack === 'function') {
+        ack(false);
+      }
+    }
+  });
 
   socket.on('DRAW_POINTS',({points,color}) => {
     socket.broadcast.emit('DRAW_POINTS',{points,color});
   });
+
+  socket.on('disconnect',() => {
+    Object.keys(db.all).forEach(function(username) {
+      if (db.get(username)=== socket.id) {
+        db.create(username, socket.id)();
+      }
+    }, this);
+    socket.emit('UPDATE_USER_LIST',Object.keys(db.all));
+  })
 
 };
 
